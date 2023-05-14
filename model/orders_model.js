@@ -16,14 +16,14 @@ const ordersSchema = new mongoose.Schema(
             required: true,
         },
         order_date: {
-            type: Date,
+            type: String,
             required: true,
-            default: Date.now
+            // default: Date.now
         },
         delivery_date: {
-            type: Date,
+            type: String,
             required: true,
-            default: Date.now
+            // default: Date.now
         },
     },
     { timestamps: true }

@@ -8,6 +8,7 @@ const ordersController = () => {
     const createOrders = async (req, res) => {
         try {
             const userInput = helper.getReqValues(req);
+
             let orders = await Orders.find({ order_id: userInput.order_id })
             if (orders.length != 0) {
                 return APIResp.getErrorResult(`order id - ${userInput.order_id} is already present`, res)
@@ -17,8 +18,8 @@ const ordersController = () => {
                 order_id: userInput.order_id,
                 item_name: userInput.item_name,
                 cost: userInput.cost,
-                order_date: moment(userInput.order_date).format(),
-                delivery_date: moment(userInput.delivery_date).format()
+                order_date: moment(userInput.order_date, 'YYYY/MM/DD').format(),
+                delivery_date: moment(userInput.delivery_date, 'YYYY/MM/DD').format()
             });
             data.save();
             APIResp.getSuccessResult(data, "orders inserted successfully", res);
@@ -34,21 +35,21 @@ const ordersController = () => {
         try {
             const userInput = helper.getReqValues(req);
 
-            let orders = await Orders.find({ order_id: JSON.parse(userInput.order_id) })
+            let orders = await Orders.find({ order_id: userInput.order_id })
             if (orders.length == 0) {
-                return APIResp.getErrorResult(`order id - ${JSON.parse(userInput.order_id)} is not present`, res)
+                return APIResp.getErrorResult(`order id - ${userInput.order_id} is not present`, res)
             }
 
-            let data = await Orders.updateMany({ order_id: JSON.parse(userInput.order_id) }, {
+            let data = await Orders.updateMany({ order_id: userInput.order_id }, {
                 $set: {
                     item_name: userInput.item_name,
                     cost: userInput.cost,
-                    order_date: userInput.order_date,
-                    delivery_date: userInput.delivery_date
+                    order_date: moment(userInput.order_date, 'YYYY/MM/DD').format(),
+                    delivery_date: moment(userInput.delivery_date, 'YYYY/MM/DD').format()
                 }
             })
             APIResp.getSuccessResult(data,
-                `order id - ${JSON.parse(userInput.order_id)} updated successfully`, res);
+                `order id - ${userInput.order_id} updated successfully`, res);
 
         }
         catch (err) {
@@ -62,11 +63,12 @@ const ordersController = () => {
         try {
             const userInput = helper.getReqValues(req);
 
-            let inputdate = JSON.parse(userInput.order_date)
-            // console.log(userInput,)
-            let data = await Orders.find({ order_date: moment(inputdate).format() })
-            APIResp.getSuccessResult(data,
-                `listed successfully based on order_date`, res);
+            let data = await Orders.find({ order_date: moment(userInput.order_date, 'YYYY/MM/DD').format() })
+            var msg = ''
+            msg = data.length ?
+                `listed successfully based on order_date`
+                : `no records are available based on order_date`
+            APIResp.getSuccessResult(data, msg, res);
         }
         catch (err) {
             console.log(err)
@@ -78,32 +80,36 @@ const ordersController = () => {
         try {
             const userInput = helper.getReqValues(req);
 
-            let inputdate = JSON.parse(userInput.delivery_date)
-
-            let data = await Orders.find({ delivery_date: moment(inputdate).format() })
-            APIResp.getSuccessResult(data,
-                `listed successfully based on delivery_date`, res);
+            let data = await Orders.find({ delivery_date: moment(userInput.delivery_date, 'YYYY/MM/DD').format() })
+            var msg = ''
+            msg = data.length ?
+                `listed successfully based on delivery_date`
+                : `no records are available based on delivery_date`
+            APIResp.getSuccessResult(data, msg, res);
         }
         catch (err) {
             console.log(err)
             APIResp.getINTERNALSERVERError(err, res);
         }
     }
-
 
     const search = async (req, res) => {
         try {
             const userInput = helper.getReqValues(req);
 
-            let data = await Orders.find({ order_id: JSON.parse(userInput.order_id) })
-            APIResp.getSuccessResult(data,
-                `records displayed based on order id - ${JSON.parse(userInput.order_id)}`, res);
+            let data = await Orders.find({ order_id: userInput.order_id })
+            var msg = ''
+            msg = data.length ?
+                `records displayed based on order id - ${userInput.order_id}`
+                : `no records are available`
+            APIResp.getSuccessResult(data, msg, res);
         }
         catch (err) {
             console.log(err)
             APIResp.getINTERNALSERVERError(err, res);
         }
     }
+
     const deleteOrders = async (req, res) => {
         try {
             const userInput = helper.getReqValues(req);
